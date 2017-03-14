@@ -5,5 +5,9 @@ A = [
     23, 22, 21, 20, 19, 18;
     ];
 disp(A);
-res = A(1,6) + A(2,1) + A(3,6) + A(4,1);
-fprintf('Sum of the max elements = %d\n\n', res);
+
+res = 0;
+for i = 1 : 4
+    res = res + max(A(i,:));
+end
+fprintf('Sum of the max elements = %d\n', res);

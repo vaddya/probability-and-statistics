@@ -7,6 +7,8 @@ A = [
     30, 31, 32, 33, 34, 31, 32, 33, 34;
     ];
 disp(A);
+
 A([1,6],:) = A([6,1],:);
-fprintf('Swap first and last rows\n');
+
+disp('Swaped first and last rows');
 disp(A);

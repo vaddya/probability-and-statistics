@@ -13,9 +13,9 @@ def draw_distribution(keys: list, probs: dict, title='', show=True, save=''):
     plt.figure(figsize=(11, 7))
     plt.bar(range(len(probs)), values, align='center')
     plt.xticks(range(len(probs)), keys)
-    plt.xlabel('$x$', fontsize=20, labelpad=20)
-    plt.ylabel('$P(x)$', fontsize=20, labelpad=20)
-    plt.tick_params(labelsize=9, pad=10)
+    plt.xlabel('$x$', fontsize=20)
+    plt.ylabel('$P(x)$', fontsize=20)
+    plt.tick_params(labelsize=9)
     if title != '':
         plt.title(title, fontsize=15)
     plt.tight_layout()

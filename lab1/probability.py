@@ -3,6 +3,7 @@ import math
 q = 0.168
 p = 1 - q
 
+
 def find_prob(x: str, y: str):
     """Найти вероятность p(y|x)"""
     assert len(x) == len(y)

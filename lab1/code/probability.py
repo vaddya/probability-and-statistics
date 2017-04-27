@@ -32,7 +32,15 @@ def find_posterior_probs(alph: dict, x: dict, y: str):
     return x_post
 
 
-def find_entropy(alph: dict, x: dict, y: str):
+def find_entropy(x: dict):
+    """Найти энтропию H(X)"""
+    res = 0
+    for key, value in x.items():
+        res = res + value * math.log2(value)
+    return -res
+
+
+def find_cond_entropy(alph: dict, x: dict, y: str):
     """Найти условную энтропию H(X|y)"""
     x_when_y = find_posterior_probs(alph, x, y)
     res = 0
@@ -46,22 +54,28 @@ def find_avg_entropy(alph: dict, x: dict, y: list):
     res = 0
     for yi in y:
         x_when_y = find_posterior_probs(alph, x, yi)
-        res = res + find_message_prob(x, x_when_y) * find_entropy(alph, x, yi)
+        res = res + find_message_prob(x, x_when_y) * find_cond_entropy(alph, x, yi)
     return res
 
 
 def find_info(alph: dict, x: dict, y: str):
     """Найти количество информации I(X:y)"""
     res = 0
+    post = find_posterior_probs(alph, x, y)
     for char in x.keys():
-        res = res + find_prob(alph[char], y) * math.log2(x[char])
-    return -res - find_entropy(alph, x, y)
+        res = res + post[char] * math.log2(x[char])
+    return -res - find_cond_entropy(alph, x, y)
 
 
-def find_avg_info(alph: dict, x: list, y: list):
+def find_avg_information(alph: dict, x: list, y: list):
     """Найти среднее количество информации I(X:Y)"""
     res = 0
     for i in range(len(y)):
         x_when_y = find_posterior_probs(alph, x[i], y[i])
         res = res + find_message_prob(x[i], x_when_y) * find_info(alph, x[i], y[i])
     return res
+
+
+def find_avg_info(alph: dict, x: dict, y: list):
+    """Найти среднее количество информации I(X:Y)"""
+    return find_entropy(x) - find_avg_entropy(alph, x, y)

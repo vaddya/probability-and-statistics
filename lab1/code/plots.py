@@ -39,7 +39,7 @@ def draw_entropy(x: list, uniform: list, weighted: list, title='', show=True, sa
     plt.ylabel('$H(x)$', fontsize=20)
     plt.tick_params(labelsize=15, pad=10)
     if title != '':
-        plt.title(title, fontsize=20)
+        plt.title(title, fontsize=15)
     plt.tight_layout()
     if save != '':
         plt.savefig(save)
@@ -58,7 +58,7 @@ def draw_info(x: list, uniform: list, weighted: list, title='', show=True, save=
     plt.ylabel('$I(x)$', fontsize=20)
     plt.tick_params(labelsize=15, pad=10)
     if title != '':
-        plt.title(title, fontsize=20)
+        plt.title(title, fontsize=15)
     plt.tight_layout()
     if save != '':
         plt.savefig(save)

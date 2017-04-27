@@ -63,7 +63,7 @@ def find_avg_entropy(alph: dict, x: dict, y: list):
 
 
 def find_info(alph: dict, x: dict, y: str):
-    """Найти количество информации об x I(X|y)"""
+    """Найти количество информации I(X:y)"""
     summ = 0
     for char in x.keys():
         summ = summ + find_prob(alph[char], y) * math.log2(x[char])
@@ -71,10 +71,5 @@ def find_info(alph: dict, x: dict, y: str):
 
 
 def find_avg_info(alph: dict, x: dict, y: list):
-    """Найти среднее количество информации об x H(X|Y)"""
-    # res = 0
-    # for yi in y:
-    #     x_when_y = find_posterior_probs(alph, x, yi)
-    #     res = res + find_message_prob(x, x_when_y) * find_info(alph, x, yi)
-    # return res
+    """Найти среднее количество информации I(X:Y)"""
     return find_entropy(x) - find_avg_entropy(alph, x, y)

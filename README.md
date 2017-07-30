@@ -8,7 +8,7 @@
 [Задание](https://github.com/vaddya/probability-and-statistics/blob/master/lab1/lab1.pdf) - 
 [Jupyter](https://github.com/vaddya/probability-and-statistics/blob/master/lab1/code/lab1.ipynb) - 
 [Отчет](https://github.com/vaddya/probability-and-statistics/blob/master/lab1/report/lab1.pdf)
-2. Статистическая обработка случайных последовательностей. Идентификация законов распределения:
+2. Статистическая обработка случайных последовательностей:
 [Задание](https://github.com/vaddya/probability-and-statistics/blob/master/lab2/lab2.pdf) - 
 [Jupyter](https://github.com/vaddya/probability-and-statistics/blob/master/lab2/code/lab2.ipynb)
 3. Аппроксимация результатов измерений зависимых переменных:

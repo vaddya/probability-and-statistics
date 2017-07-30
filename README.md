@@ -5,11 +5,11 @@
 0. __Приобретение основных навыков программирования в среде Matlab:__
 [Задание](https://github.com/vaddya/probability-and-statistics/blob/master/lab0/lab0.pdf) - 
 [Matlab](https://github.com/vaddya/probability-and-statistics/tree/master/lab0/code) - 
-[Отчет](https://github.com/vaddya/probability-and-statistics/blob/master/lab0/report/lab0.pdf)
+[Отчет](https://github.com/vaddya/probability-and-statistics/releases/download/1.1/lab0.pdf)
 1. __Идентификация сообщений, передаваемых по зашумленному каналу связи:__
 [Задание](https://github.com/vaddya/probability-and-statistics/blob/master/lab1/lab1.pdf) - 
 [Jupyter](https://github.com/vaddya/probability-and-statistics/blob/master/lab1/code/lab1.ipynb) - 
-[Отчет](https://github.com/vaddya/probability-and-statistics/blob/master/lab1/report/lab1.pdf)
+[Отчет](https://github.com/vaddya/probability-and-statistics/releases/download/1.1/lab1.pdf)
 2. __Статистическая обработка случайных последовательностей:__
 [Задание](https://github.com/vaddya/probability-and-statistics/blob/master/lab2/lab2.pdf) - 
 [Jupyter](https://github.com/vaddya/probability-and-statistics/blob/master/lab2/code/lab2.ipynb)

@@ -16,7 +16,7 @@ matrix:
     - env: LAB="lab1"
 
 script:
-  - docker run -v $TRAVIS_BUILD_DIR:/computational-math lamtev/latex:full /bin/bash -c " cd computational-math/${LAB} && pdflatex ${LAB}.tex && pdflatex ${LAB}.tex "
+  - docker run -v $TRAVIS_BUILD_DIR:/computational-math lamtev/latex:full /bin/bash -c " cd computational-math/${LAB}/report && pdflatex ${LAB}.tex && pdflatex ${LAB}.tex "
   - sudo chmod 777 ${TRAVIS_BUILD_DIR}/${LAB}/${LAB}.pdf
   
 deploy:

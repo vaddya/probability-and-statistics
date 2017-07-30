@@ -6,7 +6,7 @@ rc('font', **font)
 
 
 def draw_distribution(keys: list, probs: dict, title='', show=True, save=''):
-    """Построить граифк распределения вероятностей"""
+    """Построить график распределения вероятностей"""
     values = []
     for key in keys:
         values.append(probs[key])

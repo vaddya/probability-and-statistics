@@ -17,13 +17,13 @@ matrix:
 
 script:
   - docker run -v $TRAVIS_BUILD_DIR:/computational-math lamtev/latex:full /bin/bash -c " cd computational-math/${LAB}/report && pdflatex ${LAB}.tex && pdflatex ${LAB}.tex "
-  - sudo chmod 777 ${TRAVIS_BUILD_DIR}/${LAB}/${LAB}.pdf
+  - sudo chmod 777 ${TRAVIS_BUILD_DIR}/${LAB}/report/${LAB}.pdf
   
 deploy:
   provider: releases
   api_key: "$GITHUB_DEPLOY_TOKEN"
   file: 
-    - ${TRAVIS_BUILD_DIR}/${LAB}/${LAB}.pdf
+    - ${TRAVIS_BUILD_DIR}/${LAB}/report/${LAB}.pdf
   skip_cleanup: true
   on:
     tags: true

@@ -1,0 +1,112 @@
+---
+title: "Аппроксимация результатов измерений зависимых переменных"
+author: "Дьячков Вадим"
+output:
+  html_notebook:
+    fig_caption: yes
+  html_document:
+    fig_caption: yes
+  pdf_document:
+    fig_caption: yes
+header-includes: \usepackage[english, russian]{babel}
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(include = F, eval = T, comment = "")
+library(stringi)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+```
+
+### Условие
+
+В результате измерений при значениях независимой переменной $x_1, x_2, ... , x_k$
+получены следующие данные:  
+$y_{11}, y_{21},..., y_{k1}$;  
+$y_{12}, y_{22},..., y_{k2}$;  
+$...$  
+$y_{1n}, y_{2n},..., y_{kn}$.
+
+### Исходные данные
+
+```{r preprocessing}
+split <- function(str, delimeter = " ") {
+  return (stri_split_fixed(str, delimeter, simplify = T, omit_empty = T)[1, ])
+}
+
+lines <-readLines("input.txt")
+
+nx <- as.integer(split(lines[1], "=")[2])
+ny <- as.integer(split(lines[2], "=")[2])
+x <- as.double(split(split(lines[3], "=")[2]))
+y <- sapply(lines[4:length(lines)], function(row) as.double(split(split(row, "=")[2])))
+table <- data.frame(y)
+names(table) <- x
+
+write.csv(table, "input.csv", row.names = F)
+```
+
+* Число точек, в которых проводились измерения: $k = `r nx`$.
+* Количество измерений в каждой точке: $n = `r ny`$.
+
+### Описательные статитстики
+
+```{r read_data}
+df <- read.csv("input.csv", header = T, check.names = F)
+
+df <- 
+  gather(df, convert = T) %>% 
+  group_by(key)
+names(df) <- c("x", "y")
+
+mean.df <- 
+  df %>% 
+  summarise(mean.y = mean(y), var.y = var(y))
+```
+
+Изобразим на графике измерения для каждой точки $x$, в которой проводились измерения. Красными точками отметим среднее значение $y$ в каждой точке.
+
+```{r plots, fig.align="center", fig.cap="Fig title"}
+ggplot(df, aes(x, y)) +
+  geom_point(alpha = 0.5) +
+  stat_summary(fun.y = mean, geom = "line", col = "red") +
+  stat_summary(fun.y = mean, geom = "point", col = "red", size = 2) +
+  scale_x_continuous(breaks = seq(-2, 2, 0.4)) +
+  theme_minimal()
+```
+
+### Linear regression
+```{r lin_regr}
+fit_lm <- lm(y ~ x + I(x^3) + I(x^5), df)
+summary(fit_lm)
+```
+Коэффициент корреляции предсказанных данных с исходными: `r cor(df$y, predict(fit))`.
+
+```{r lin_regr_plot}
+ggplot(mean.df, aes(key, mean.y)) +
+  geom_point() +
+  geom_line() +
+  geom_point(data = df, aes(x, predict(fit_lm)), col = "red") +
+  geom_line(data = df, aes(x, predict(fit_lm)), col = "red") +
+  theme_minimal()
+```
+
+### Nonlinear regression
+
+```{r nonlin_regr}
+fit_nl <- nls(y ~ a * sin(b * x), df, start = list(a = 20, b = 3))
+coef_nl <- coefficients(fit_nl)
+summary(fit_nl)
+```
+Для модели $y = `r round(coef_nl["a"], 2)` \cdot \sin(`r round(coef_nl["b"], 2)` \cdot x)$ коэффициент корреляции предсказанных данных с исходными $\rho = `r round(cor(df$y, predict(fit_nl)), 2)`$.
+
+```{r nonlin_regr_plot}
+ggplot(mean.df, aes(key, mean.y)) +
+  geom_point() +
+  geom_line() +
+  geom_point(data = df, aes(x, predict(fit_nl)), col = "red") +
+  geom_line(data = df, aes(x, predict(fit_nl)), col = "red") +
+  theme_minimal()
+```

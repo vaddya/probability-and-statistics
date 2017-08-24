@@ -4,10 +4,16 @@ author: "Дьячков Вадим"
 output:
   html_notebook:
     fig_caption: yes
+    theme: paper
+    toc: yes
+    toc_float: yes
   html_document:
     fig_caption: yes
+    toc: yes
+    toc_float: yes
   pdf_document:
     fig_caption: yes
+    toc: yes
 header-includes: \usepackage[english, russian]{babel}
 ---
 
@@ -18,9 +24,10 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(ggthemes)
+library(ggvis)
 ```
 
-### Условие
+## Условие
 
 В результате измерений при значениях независимой переменной $x_1, x_2, ... , x_k$
 получены следующие данные:  
@@ -29,7 +36,7 @@ $y_{12}, y_{22},..., y_{k2}$;
 $...$  
 $y_{1n}, y_{2n},..., y_{kn}$.
 
-### Исходные данные
+## Исходные данные
 
 ```{r preprocessing}
 split <- function(str, delimeter = " ") {
@@ -51,7 +58,7 @@ write.csv(table, "input.csv", row.names = F)
 * Число точек, в которых проводились измерения: $k = `r nx`$.
 * Количество измерений в каждой точке: $n = `r ny`$.
 
-### Описательные статитстики
+## Описательные статитстики
 
 ```{r read_data}
 df <- read.csv("input.csv", header = T, check.names = F)
@@ -68,7 +75,12 @@ mean.df <-
 
 Изобразим на графике измерения для каждой точки $x$, в которой проводились измерения. Красными точками отметим среднее значение $y$ в каждой точке.
 
-```{r plots, fig.align="center", fig.cap="Fig title"}
+```{r plots2, include=F}
+ggvis(df, ~x, ~y) %>% 
+  layer_points()
+```
+
+```{r plots, include=T, fig.align="center", fig.cap="Fig title"}
 ggplot(df, aes(x, y)) +
   geom_point(alpha = 0.5) +
   stat_summary(fun.y = mean, geom = "line", col = "red") +
@@ -77,14 +89,14 @@ ggplot(df, aes(x, y)) +
   theme_minimal()
 ```
 
-### Linear regression
+## Linear regression
 ```{r lin_regr}
 fit_lm <- lm(y ~ x + I(x^3) + I(x^5), df)
 summary(fit_lm)
 ```
-Коэффициент корреляции предсказанных данных с исходными: `r cor(df$y, predict(fit))`.
+Коэффициент корреляции предсказанных данных с исходными: `r cor(df$y, predict(fit_lm))`.
 
-```{r lin_regr_plot}
+```{r lin_regr_plot, include=T}
 ggplot(mean.df, aes(key, mean.y)) +
   geom_point() +
   geom_line() +
@@ -93,7 +105,7 @@ ggplot(mean.df, aes(key, mean.y)) +
   theme_minimal()
 ```
 
-### Nonlinear regression
+## Nonlinear regression
 
 ```{r nonlin_regr}
 fit_nl <- nls(y ~ a * sin(b * x), df, start = list(a = 20, b = 3))
@@ -102,7 +114,7 @@ summary(fit_nl)
 ```
 Для модели $y = `r round(coef_nl["a"], 2)` \cdot \sin(`r round(coef_nl["b"], 2)` \cdot x)$ коэффициент корреляции предсказанных данных с исходными $\rho = `r round(cor(df$y, predict(fit_nl)), 2)`$.
 
-```{r nonlin_regr_plot}
+```{r nonlin_regr_plot, include=T}
 ggplot(mean.df, aes(key, mean.y)) +
   geom_point() +
   geom_line() +

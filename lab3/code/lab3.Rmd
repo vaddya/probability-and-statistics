@@ -24,17 +24,19 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(ggthemes)
-library(ggvis)
+library(outliers)
+library(tolerance)
+options(digits=2)
 ```
 
 ## Условие
 
-В результате измерений при значениях независимой переменной $x_1, x_2, ... , x_k$
+В результате измерений при значениях независимой переменной $X = x_1, x_2, ... , x_k$
 получены следующие данные:  
-$y_{11}, y_{21},..., y_{k1}$;  
-$y_{12}, y_{22},..., y_{k2}$;  
+$Y_1 = y_{11}, y_{21},..., y_{k1}$;  
+$Y_2 = y_{12}, y_{22},..., y_{k2}$;  
 $...$  
-$y_{1n}, y_{2n},..., y_{kn}$.
+$Y_n = y_{1n}, y_{2n},..., y_{kn}$.
 
 ## Исходные данные
 
@@ -60,6 +62,8 @@ write.csv(table, "input.csv", row.names = F)
 
 ## Описательные статитстики
 
+### Оценки математического ожидаения и дисперсии
+
 ```{r read_data}
 df <- read.csv("input.csv", header = T, check.names = F)
 
@@ -68,17 +72,12 @@ df <-
   group_by(key)
 names(df) <- c("x", "y")
 
-mean.df <- 
+stat.df <- 
   df %>% 
   summarise(mean.y = mean(y), var.y = var(y))
 ```
 
 Изобразим на графике измерения для каждой точки $x$, в которой проводились измерения. Красными точками отметим среднее значение $y$ в каждой точке.
-
-```{r plots2, include=F}
-ggvis(df, ~x, ~y) %>% 
-  layer_points()
-```
 
 ```{r plots, include=T, fig.align="center", fig.cap="Fig title"}
 ggplot(df, aes(x, y)) +
@@ -89,36 +88,57 @@ ggplot(df, aes(x, y)) +
   theme_minimal()
 ```
 
-## Linear regression
-```{r lin_regr}
-fit_lm <- lm(y ~ x + I(x^3) + I(x^5), df)
-summary(fit_lm)
-```
-Коэффициент корреляции предсказанных данных с исходными: `r cor(df$y, predict(fit_lm))`.
+### Толерантные пределы для погрешностей
 
-```{r lin_regr_plot, include=T}
-ggplot(mean.df, aes(key, mean.y)) +
-  geom_point() +
-  geom_line() +
-  geom_point(data = df, aes(x, predict(fit_lm)), col = "red") +
-  geom_line(data = df, aes(x, predict(fit_lm)), col = "red") +
+Найдем параметрические толерантные пределы для погрешностей в точках $X$:
+
+```{r}
+df %>% 
+  mutate(error = y - mean(y)) %>% 
+  summarise(error.lower = normtol.int(error, alpha = 0.05, P = 0.95)$`1-sided.lower`,
+            error.upper = normtol.int(error, alpha = 0.05, P = 0.95)$`1-sided.upper`)
+```
+
+### Гипотеза о равенстве дисперсий
+
+Построим гистограмму распределения дисперсий в точках $X$. 
+
+```{r}
+ggplot(stat.df, aes(var.y, fill = levels(factor(df$x)))) +
+  geom_histogram(col = "black") +
   theme_minimal()
 ```
 
-## Nonlinear regression
+Проверим гипотезу о равенстве дисперсий в этих точках по критерию Кочрена (Cochran's Q test):
 
-```{r nonlin_regr}
-fit_nl <- nls(y ~ a * sin(b * x), df, start = list(a = 20, b = 3))
-coef_nl <- coefficients(fit_nl)
-summary(fit_nl)
+```{r}
+cochran.max <- max(stat.df$var.y)
+cochran.sum <- sum(stat.df$var.y)
+cochran.stat <- cochran.max / cochran.sum
 ```
-Для модели $y = `r round(coef_nl["a"], 2)` \cdot \sin(`r round(coef_nl["b"], 2)` \cdot x)$ коэффициент корреляции предсказанных данных с исходными $\rho = `r round(cor(df$y, predict(fit_nl)), 2)`$.
 
-```{r nonlin_regr_plot, include=T}
-ggplot(mean.df, aes(key, mean.y)) +
-  geom_point() +
-  geom_line() +
-  geom_point(data = df, aes(x, predict(fit_nl)), col = "red") +
-  geom_line(data = df, aes(x, predict(fit_nl)), col = "red") +
-  theme_minimal()
+$$ 
+g = \frac{s_{max}^2}{\sum_{i=1}^k s_i^2} = \frac{`r cochran.max`}{`r cochran.sum`} \approx `r cochran.stat`
+$$
+Критическое значение $g_\alpha (n - 1, k) \approx `r qcochran(0.95, 10, 41)`$ при $\alpha = 0.05$, $n = 10$ и $k = 41$. Так как $g < g_\alpha$, нулевая гипотеза о том, что дисперсии в точках $X$ равны друг другу, отвергается. Значит для аппроксимации применим обобщенный метод наименьших квадратов (ОМНК).
+
+### Доверительные интервалы для математических ожиданий
+
+Найдем доверительные интервалы для математических ожиданий:
+
+```{r}
+ConfidenceInterval <- function(x, p = 0.95) {
+  x.mean <- mean(x)
+  x.sd <- sd(x)
+  n <- length(x)
+  error <- qt((1 - p) / 2, df = n - 1) * x.sd / sqrt(n)
+  return (list(lower = x.mean - error, upper = x.mean + error))
+}
+
+df %>% 
+  summarise(mean.lower = ConfidenceInterval(y)$lower, 
+            mean = mean(y),
+            mean.upper = ConfidenceInterval(y)$upper)
 ```
+
+## Полиномиальная аппроксимация

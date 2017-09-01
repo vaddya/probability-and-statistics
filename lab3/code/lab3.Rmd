@@ -62,7 +62,7 @@ write.csv(table, "input.csv", row.names = F)
 
 ## Описательные статитстики
 
-### Оценки математического ожидаения и дисперсии
+### Оценки математических ожидаений и дисперсий
 
 ```{r read_data}
 df <- read.csv("input.csv", header = T, check.names = F)
@@ -142,3 +142,35 @@ df %>%
 ```
 
 ## Полиномиальная аппроксимация
+
+```{r}
+cov.matrix <- matrix(0, nx, nx)
+diag(cov.matrix) <- stat.df$var.y
+
+fits <- data.frame()
+f.df <- data.frame()
+
+for (q in 0:9) {
+  x <- sapply(0:q, function(x) stat.df$key ** x)
+  a <- solve(t(x) %*% solve(cov.matrix) %*% x) %*% t(x) %*% solve(cov.matrix) %*% stat.df$mean.y
+  
+  fit <- x %*% a
+  fit.df <- data.frame(x = stat.df$key, 
+                       y = fit,
+                       q = q)
+  fits <- rbind(fits, fit.df)
+  
+  r.squared <- ny * t(fit - stat.df$mean.y) %*% solve(cov.matrix) %*% (fit - stat.df$mean.y)
+  f.stat <- r.squared / (nx - 1 - 1)
+  
+  f.df <- rbind(f.df, c(q, f.stat))
+}  
+
+names(f.df) <- c("q", "f-value")
+f.df
+
+ggplot(fits, aes(x, y, col = factor(q))) +
+  geom_line(alpha = 0.8, size = 1) +
+  geom_point(data = stat.df, aes(key, mean.y), col = "black", size = 3) +
+  theme_minimal()
+```

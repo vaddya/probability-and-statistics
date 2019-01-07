@@ -1,7 +1,5 @@
 # Теория вероятностей и математическая статистика [![Build Status](https://travis-ci.org/vaddya/probability-and-statistics.svg?branch=master)](https://travis-ci.org/vaddya/probability-and-statistics)
 
-![СПбПУ](http://www.spbstu.ru/university/organizational-documents/corporate-identity/identity-files/logo_main.png)
-
 0. __Приобретение основных навыков программирования в среде Matlab:__
 [Задание](https://github.com/vaddya/probability-and-statistics/blob/master/lab0/lab0.pdf) · 
 [Matlab](https://github.com/vaddya/probability-and-statistics/tree/master/lab0/code) · 
